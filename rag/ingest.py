@@ -58,7 +58,18 @@ def ingest_documents(
             metadatas.append({"source": filepath.name, "chunk_index": chunk_index})
 
     if documents:
-        collection.add(documents=documents, ids=ids, metadatas=metadatas)
+        # Chroma rejects .add() calls above its max batch size, which can
+        # be far smaller than the full corpus (e.g. 5461) -- split into
+        # aligned slices and add sequentially so ingest doesn't fail once
+        # the docs grow past that limit.
+        batch_size = client.get_max_batch_size()
+        for start in range(0, len(documents), batch_size):
+            end = start + batch_size
+            collection.add(
+                documents=documents[start:end],
+                ids=ids[start:end],
+                metadatas=metadatas[start:end],
+            )
 
     logger.info("Indexed %d chunks from %d files", len(documents), len(md_files))
     return len(documents)

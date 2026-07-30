@@ -178,6 +178,27 @@ def test_heading_as_last_content_emitted_alone_no_crash():
     assert chunks[1] == "## Trailing heading"
 
 
+def test_preceding_paragraph_and_heading_fit_but_body_forces_split():
+    # P + heading alone fit under chunk_size, but P + heading + body doesn't.
+    # The heading must stay glued to its body in the NEXT chunk rather than
+    # merging backward into the preceding paragraph and leaving the body
+    # (and the orphaned heading) stranded.
+    p = "Intro paragraph text."
+    heading = "## Heading"
+    body = "Body content here really."
+    text = f"{p}\n\n{heading}\n\n{body}"
+
+    chunks = chunk_text(text, chunk_size=40)
+
+    assert len(chunks) == 2
+    assert chunks[0] == p
+    assert chunks[1] == f"{heading}\n\n{body}"
+    # Heading is not orphaned: it never appears without its body in the same chunk.
+    for c in chunks:
+        if heading in c:
+            assert body in c
+
+
 def test_normal_paragraph_splitting_unaffected_by_heading_merge_logic():
     paragraphs = [f"Paragraph {i} with some text, no headings here." for i in range(6)]
     text = "\n\n".join(paragraphs)
