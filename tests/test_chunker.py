@@ -133,3 +133,78 @@ def test_normal_paragraph_splitting_unaffected_by_code_fence_logic():
         assert any(p in c for c in chunks)
     for c in chunks:
         assert "```" not in c
+
+
+def test_heading_followed_by_paragraph_stays_together():
+    text = "## One-time setup\n\nRun `make install` to get started."
+    chunks = chunk_text(text, chunk_size=500)
+
+    assert len(chunks) == 1
+    assert "## One-time setup" in chunks[0]
+    assert "Run `make install`" in chunks[0]
+
+
+def test_heading_followed_by_code_block_stays_together():
+    code = "```bash\nmake install\n```"
+    text = f"## One-time setup\n\n{code}"
+    chunks = chunk_text(text, chunk_size=500)
+
+    assert len(chunks) == 1
+    assert "## One-time setup" in chunks[0]
+    assert code in chunks[0]
+
+
+def test_consecutive_headings_merge_with_following_paragraph():
+    text = "# Title\n\n## Subtitle\n\nActual content here."
+    chunks = chunk_text(text, chunk_size=500)
+
+    assert len(chunks) == 1
+    assert "# Title" in chunks[0]
+    assert "## Subtitle" in chunks[0]
+    assert "Actual content here." in chunks[0]
+
+
+def test_heading_as_last_content_emitted_alone_no_crash():
+    # Intro paragraph alone exceeds chunk_size, so it's forced into its own
+    # chunk (oversized-unit fallback) -- leaving the trailing heading with
+    # nothing to merge into. Must not crash, and must survive as its own chunk.
+    intro = "Some intro paragraph. " * 30
+    text = f"{intro}\n\n## Trailing heading"
+
+    chunks = chunk_text(text, chunk_size=500)
+
+    assert len(chunks) == 2
+    assert chunks[0] == intro.strip()
+    assert chunks[1] == "## Trailing heading"
+
+
+def test_preceding_paragraph_and_heading_fit_but_body_forces_split():
+    # P + heading alone fit under chunk_size, but P + heading + body doesn't.
+    # The heading must stay glued to its body in the NEXT chunk rather than
+    # merging backward into the preceding paragraph and leaving the body
+    # (and the orphaned heading) stranded.
+    p = "Intro paragraph text."
+    heading = "## Heading"
+    body = "Body content here really."
+    text = f"{p}\n\n{heading}\n\n{body}"
+
+    chunks = chunk_text(text, chunk_size=40)
+
+    assert len(chunks) == 2
+    assert chunks[0] == p
+    assert chunks[1] == f"{heading}\n\n{body}"
+    # Heading is not orphaned: it never appears without its body in the same chunk.
+    for c in chunks:
+        if heading in c:
+            assert body in c
+
+
+def test_normal_paragraph_splitting_unaffected_by_heading_merge_logic():
+    paragraphs = [f"Paragraph {i} with some text, no headings here." for i in range(6)]
+    text = "\n\n".join(paragraphs)
+
+    chunks = chunk_text(text, chunk_size=60)
+
+    assert len(chunks) > 1
+    for p in paragraphs:
+        assert any(p in c for c in chunks)
