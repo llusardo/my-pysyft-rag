@@ -1,0 +1,372 @@
+[
+  {
+    "question": "How do I create a Data Owner client in Syft?",
+    "expected_answer_contains": "login_do(email, token_path=None) — Create a Data Owner client",
+    "expected_source": "API.md"
+  },
+  {
+    "question": "What's the difference between what client.peers returns for a Data Owner vs a Data Scientist?",
+    "expected_answer_contains": "DO: Returns approved peers followed by pending peer requests. DS: Returns all connected peers.",
+    "expected_source": "API.md"
+  },
+  {
+    "question": "How do I submit a Python job to a Data Owner?",
+    "expected_answer_contains": "client.submit_python_job(user, code_path, job_name=None, entrypoint=None) — Submit a Python job to a Data Owner. DS only.",
+    "expected_source": "API.md"
+  },
+  {
+    "question": "How is authentication handled when using Syft Client in Google Colab?",
+    "expected_answer_contains": "authentication is handled by colab via a browser pop-up when you initialize a SyftClient",
+    "expected_source": "auth.md"
+  },
+  {
+    "question": "What happens to OAuth tokens if my app stays in Testing mode instead of being published?",
+    "expected_answer_contains": "OAuth tokens expire every 7 days and users will need to re-authenticate",
+    "expected_source": "auth.md"
+  },
+  {
+    "question": "What application type should I select when creating OAuth client credentials for Syft Client?",
+    "expected_answer_contains": "Select Desktop app as the application type",
+    "expected_source": "auth.md"
+  },
+  {
+    "question": "What transport layer does syft-client use for peer-to-peer communication?",
+    "expected_answer_contains": "Syft-client uses Google Drive as its file-based transport layer",
+    "expected_source": "connections.md"
+  },
+  {
+    "question": "Why doesn't syft-client store every file-change event as its own file on Google Drive?",
+    "expected_answer_contains": "Google Drive has strict rate limits (~50 files per listing). Storing each event as a separate GDrive file quickly hits that limit",
+    "expected_source": "connections.md"
+  },
+  {
+    "question": "What are the three checkpoint tiers syft-client uses to persist file change events?",
+    "expected_answer_contains": "Rolling state, Incremental, Full",
+    "expected_source": "connections.md"
+  },
+  {
+    "question": "Where do I download the real Gemma 3 270m flax weights from for the enclave demo?",
+    "expected_answer_contains": "kagglehub.model_download('google/gemma-3/flax/gemma-3-270m-it')",
+    "expected_source": "enclave-model-api-example-demo.md"
+  },
+  {
+    "question": "What argument flips the deployed enclave demo to load real weights instead of the mock model?",
+    "expected_answer_contains": "use_mock=false is the new last argument — it flips the VM to load real weights instead of serving canned responses",
+    "expected_source": "enclave-model-api-example-demo.md"
+  },
+  {
+    "question": "Why is the enclave started before the model weights are uploaded in the demo?",
+    "expected_answer_contains": "The enclave starts before the weights exist — its inference service comes up and polls for the gemma3_model dataset",
+    "expected_source": "enclave-model-api-example-demo.md"
+  },
+  {
+    "question": "What two HTTP endpoints does the enclave-model-api-example's FastAPI server expose?",
+    "expected_answer_contains": "POST /infer, GET /model-status",
+    "expected_source": "enclave-model-api-example-README.md"
+  },
+  {
+    "question": "Is the model mocked or real by default in the enclave-model-api-example demo?",
+    "expected_answer_contains": "By default the model is mocked (SYFT_ENCLAVE_USE_MOCK_MODEL=true) so no weights are needed",
+    "expected_source": "enclave-model-api-example-README.md"
+  },
+  {
+    "question": "What does DO2's analysis job check for in the enclave-model-api-example demo?",
+    "expected_answer_contains": "submits a job that counts how often a banned topic (\"bio-weapon\") appeared — which both data owners must approve before it runs",
+    "expected_source": "enclave-model-api-example-README.md"
+  },
+  {
+    "question": "What are the core principles of Syft?",
+    "expected_answer_contains": "File first, File-permission-first, Offline-first, Shell-first, Schema-last, Fail-softly, Manual-review-first, DataScientist-first-debugging, Peer-first, Modular-first, MapReduce-first, Unopinionated-first — Convenient-second, Transport-agnostic, Transport-based-auth first, Mock-always, Automock-first, Single-gateway only, Job-only",
+    "expected_source": "principles.md"
+  },
+  {
+    "question": "What does the Fail-softly principle mean in Syft?",
+    "expected_answer_contains": "the server doesn't reject the job entirely... the shell script which was attempted generates some error which (with the data owner's permission) the data scientist can then view to debug what's going wrong",
+    "expected_source": "principles.md"
+  },
+  {
+    "question": "What does the Mock-always principle mean in Syft's design?",
+    "expected_answer_contains": "Every piece of state in the syft ecosystem comes with a mock enabling others to leverage that state in a job if they have permission to see the mock",
+    "expected_source": "principles.md"
+  },
+  {
+    "question": "What does PySyft let data scientists do?",
+    "expected_answer_contains": "PySyft lets data scientists submit computations which are ran by data owners on private data — all through cloud storage their organizations already use (Google Drive, Microsoft 365, etc.). No new infrastructure required.",
+    "expected_source": "root-README.md"
+  },
+  {
+    "question": "How do I install syft-client?",
+    "expected_answer_contains": "uv pip install syft-client",
+    "expected_source": "root-README.md"
+  },
+  {
+    "question": "What's the difference between just test-unit and just test-integration in PySyft?",
+    "expected_answer_contains": "just test-unit  # Unit tests (fast, mocked); just test-integration  # Integration tests (slow, real API)",
+    "expected_source": "root-README.md"
+  },
+  {
+    "question": "How do I start the notify and approve background services with the syft_bg Python API?",
+    "expected_answer_contains": "syft_bg.ensure_running([\"notify\", \"approve\"])",
+    "expected_source": "syft-bg-python-api.md"
+  },
+  {
+    "question": "What does syft_bg.auto_approve() do?",
+    "expected_answer_contains": "Registers files for auto-approval. Jobs matching these files from listed peers get approved automatically.",
+    "expected_source": "syft-bg-python-api.md"
+  },
+  {
+    "question": "How many lines of log output does syft_bg.logs() show?",
+    "expected_answer_contains": "last 50 lines of approve service log",
+    "expected_source": "syft-bg-python-api.md"
+  },
+  {
+    "question": "How do I install syft-bg?",
+    "expected_answer_contains": "pip install syft-bg",
+    "expected_source": "syft-bg-README.md"
+  },
+  {
+    "question": "What events trigger email notifications from syft-bg's notify service?",
+    "expected_answer_contains": "A peer requests to connect with you; Your peer request is approved by someone; A data scientist submits a job to you; A job you submitted is approved; A job completes (results ready); A job is rejected",
+    "expected_source": "syft-bg-README.md"
+  },
+  {
+    "question": "What two OAuth tokens does syft-bg require, and what is each one for?",
+    "expected_answer_contains": "Gmail → gmail_token.json (send email permission); Drive → drive_token.json (read/write files permission)",
+    "expected_source": "syft-bg-README.md"
+  },
+  {
+    "question": "How do I start the syft-enclave runner?",
+    "expected_answer_contains": "python -m syft_enclaves",
+    "expected_source": "syft-enclave-api.md"
+  },
+  {
+    "question": "Which environment variable is required to set the enclave's datasite email?",
+    "expected_answer_contains": "SYFT_ENCLAVE_EMAIL",
+    "expected_source": "syft-enclave-api.md"
+  },
+  {
+    "question": "What does the /attestation endpoint of a running syft-enclave return?",
+    "expected_answer_contains": "TEE attestation report (signed JWT with hardware/software claims)",
+    "expected_source": "syft-enclave-api.md"
+  },
+  {
+    "question": "What confidential compute types does Google Confidential Spaces support for syft-client-enclave?",
+    "expected_answer_contains": "SEV | AMD Secure Encrypted Virtualization | n2d-* (AMD Milan); TDX | Intel Trust Domain Extensions | c3-*",
+    "expected_source": "syft-enclave-architecture.md"
+  },
+  {
+    "question": "Is AMD SEV-SNP supported by Google Confidential Spaces?",
+    "expected_answer_contains": "AMD SEV-SNP is NOT supported by Confidential Spaces (only by raw Confidential VMs). The recipes use SEV.",
+    "expected_source": "syft-enclave-architecture.md"
+  },
+  {
+    "question": "What does the syft-client-enclave Docker image package together?",
+    "expected_answer_contains": "a Docker image that packages syft-client with an HTTP attestation server",
+    "expected_source": "syft-enclave-architecture.md"
+  },
+  {
+    "question": "Who are the three parties in the syft-enclave collaboration flow?",
+    "expected_answer_contains": "DO1 — a data owner who holds a private benchmark; DO2 — a data owner who holds a private model and its inference code; DS — a data scientist who writes the analysis",
+    "expected_source": "syft-enclave-flow.md"
+  },
+  {
+    "question": "When does the secure enclave execute the analysis in the enclave flow?",
+    "expected_answer_contains": "With both approvals in hand, the enclave runs the analysis inside its open-source docker container on confidential-compute hardware",
+    "expected_source": "syft-enclave-flow.md"
+  },
+  {
+    "question": "What happens to a data owner's private data after the enclave computation finishes?",
+    "expected_answer_contains": "it never leaks to the other parties, it is removed after the computation, and an owner can delete it at any time",
+    "expected_source": "syft-enclave-flow.md"
+  },
+  {
+    "question": "What command initializes a syft-enclave for the first time?",
+    "expected_answer_contains": "just init YOUR_GCLOUD_PROJECT_ID TOKEN_PATH DATA_OWNERS",
+    "expected_source": "syft-enclave-README.md"
+  },
+  {
+    "question": "How many of the configured data owners must approve a job before it runs on a syft-enclave?",
+    "expected_answer_contains": "a job runs only after all of them approve it, regardless of which datasets the submission references",
+    "expected_source": "syft-enclave-README.md"
+  },
+  {
+    "question": "What's the difference between the production and debug syft-enclave deployment images?",
+    "expected_answer_contains": "Hardened image — no SSH access, TEE enforcement enabled... Debug image — SSH enabled, container logs redirected to serial output",
+    "expected_source": "syft-enclave-README.md"
+  },
+  {
+    "question": "What kind of syntax does syft-client use to express file read/write permissions?",
+    "expected_answer_contains": "small permission files with a .gitignore-like syntax",
+    "expected_source": "syft-enclave-security.md"
+  },
+  {
+    "question": "What is an attestation report in the syft-enclave security model?",
+    "expected_answer_contains": "a cryptographically signed statement from the confidential-compute hardware that says, in effect, \"this exact, open-source docker container (with syft inside it) is what is running here.\"",
+    "expected_source": "syft-enclave-security.md"
+  },
+  {
+    "question": "What is Google Drive's role in the syft-enclave threat model, and what's the worst an attacker can do by compromising it?",
+    "expected_answer_contains": "Google Drive is treated purely as an untrusted transport... Compromising the transport therefore lets an adversary at most cause a denial of service; it never yields access to plaintext or the ability to forge an accepted message",
+    "expected_source": "syft-enclave-security.md"
+  },
+  {
+    "question": "In the enclave sequence diagram, who launches the Confidential VM and passes it drive credentials?",
+    "expected_answer_contains": "MP->>SE: Launch Confidential VM (enclave), pass drive credentials via secret manager",
+    "expected_source": "syft-enclave-sequence-diagram.md"
+  },
+  {
+    "question": "What are the three scenarios for distributing inference code in the enclave sequence diagram?",
+    "expected_answer_contains": "Scenario 1: public inference code; Scenario 2: 3rd party auditor; Scenario 3: inference code analysis",
+    "expected_source": "syft-enclave-sequence-diagram.md"
+  },
+  {
+    "question": "Who must send approval before the researcher's job runs, per the enclave sequence diagram?",
+    "expected_answer_contains": "MP->>SE: Read job & send approval; EV->>SE: Read job & send approval",
+    "expected_source": "syft-enclave-sequence-diagram.md"
+  },
+  {
+    "question": "What two release scripts must be run on every syft-job release, after bumping the version?",
+    "expected_answer_contains": "uv run python scripts/export_release_artifact.py; uv run python scripts/generate_release_fixture.py",
+    "expected_source": "syft-job-README.md"
+  },
+  {
+    "question": "When does export_release_artifact.py refuse to run for syft-job?",
+    "expected_answer_contains": "It refuses to run if the job protocol changed without bumping JOB_PROTOCOL_VERSION",
+    "expected_source": "syft-job-README.md"
+  },
+  {
+    "question": "What does syft-job do at a high level?",
+    "expected_answer_contains": "Job submission and execution for SyftBox: data scientists submit bash/Python jobs into a data owner's inbox, the data owner reviews, approves, and runs them",
+    "expected_source": "syft-job-README.md"
+  },
+  {
+    "question": "What kind of permission system does syft-permissions implement?",
+    "expected_answer_contains": "ACL tree-based permission system for Syft datasites",
+    "expected_source": "syft-permissions-README.md"
+  },
+  {
+    "question": "How do I install syft-permissions for development?",
+    "expected_answer_contains": "uv pip install -e packages/syft-permissions",
+    "expected_source": "syft-permissions-README.md"
+  },
+  {
+    "question": "What command runs syft-permissions' unit tests?",
+    "expected_answer_contains": "just test-unit-permissions",
+    "expected_source": "syft-permissions-README.md"
+  },
+  {
+    "question": "How do I control who can access files in my SyftBox datasite?",
+    "expected_answer_contains": "You control who can access files in your datasite by placing a syft.pub.yaml file in any directory",
+    "expected_source": "syft-permissions-user-docs.md"
+  },
+  {
+    "question": "When a file matches more than one syft.pub.yaml pattern, which rule wins?",
+    "expected_answer_contains": "the most specific pattern wins... Exact paths (reports/q1.csv) beat wildcards (**/*.csv)",
+    "expected_source": "syft-permissions-user-docs.md"
+  },
+  {
+    "question": "If a directory has its own syft.pub.yaml, do a parent directory's permission rules still apply to it?",
+    "expected_answer_contains": "There is no merging. The closest file fully replaces any parent permission files. The parent's rules are completely ignored.",
+    "expected_source": "syft-permissions-user-docs.md"
+  },
+  {
+    "question": "How do I open a remote file on another datasite using syft_perms?",
+    "expected_answer_contains": "remote = sp.open(\"syft://alice@datasite.org/data.csv\")",
+    "expected_source": "syft-perms-README.md"
+  },
+  {
+    "question": "What are the four permission levels in syft_perms, from lowest to highest?",
+    "expected_answer_contains": "Read: View file contents; Create: Read + create new files in folders; Write: Read + Create + modify existing files; Admin: Read + Create + Write + manage permissions",
+    "expected_source": "syft-perms-README.md"
+  },
+  {
+    "question": "How do I check whether a team has write access to a file using syft_perms?",
+    "expected_answer_contains": "file.has_write_access(\"team@company.com\")",
+    "expected_source": "syft-perms-README.md"
+  },
+  {
+    "question": "What violation code does syft-restrict return when private code calls a banned builtin like eval or open?",
+    "expected_answer_contains": "banned-name",
+    "expected_source": "syft-restrict-blacklist.md"
+  },
+  {
+    "question": "Why does syft-restrict ban f-strings in private code?",
+    "expected_answer_contains": "Interpolation runs formatting with no normal call site",
+    "expected_source": "syft-restrict-blacklist.md"
+  },
+  {
+    "question": "What's the difference between the call-not-allowed and call-unresolved violation codes in syft-restrict?",
+    "expected_answer_contains": "Library path not allowed | np.dot(a, b) | call-not-allowed; Call target not proven safe | fn(x) where fn is a parameter | call-unresolved",
+    "expected_source": "syft-restrict-blacklist.md"
+  },
+  {
+    "question": "What does syft-restrict do at a high level?",
+    "expected_answer_contains": "a static analyzer for Python source files that default-denies dynamic constructs in a private region... while allowing the public region to be reviewed by the data owner in an obfuscated copy",
+    "expected_source": "syft-restrict-README.md"
+  },
+  {
+    "question": "How do I mark the private region of a Python file for syft-restrict?",
+    "expected_answer_contains": "# syft-restrict: obfuscate-start / # syft-restrict: obfuscate-end or # syft-restrict: hide-start / # syft-restrict: hide-end",
+    "expected_source": "syft-restrict-README.md"
+  },
+  {
+    "question": "Does the syft-restrict verifier actually execute the source code it checks?",
+    "expected_answer_contains": "It analyzes — it doesn't run. It never executes the source. Only the static checks decide pass/fail.",
+    "expected_source": "syft-restrict-README.md"
+  },
+  {
+    "question": "Can the private region of a syft-restrict-checked file contain import statements?",
+    "expected_answer_contains": "Private imports are banned outright — an import inside the private region is rejected as banned-construct",
+    "expected_source": "syft-restrict-verify.md"
+  },
+  {
+    "question": "What happens if a Python file passed to syft-restrict has no # syft-restrict markers at all?",
+    "expected_answer_contains": "No # syft-restrict: ... marker anywhere in the file | MarkerError (the private region is designated by markers)",
+    "expected_source": "syft-restrict-verify.md"
+  },
+  {
+    "question": "What are the three operator bundles that can be enabled via allow_operators in syft-restrict?",
+    "expected_answer_contains": "arithmetic | + - * / // % ** @, unary; comparison | == != < <= > >=, and/or/not; indexing | [] and slices",
+    "expected_source": "syft-restrict-verify.md"
+  },
+  {
+    "question": "What are the 7 steps of the privacy-preserving data analysis workflow in PySyft?",
+    "expected_answer_contains": "1. Peer Request 2. Dataset Publication 3. Explore & Develop 4. Job Submission 5. Review & Execute 6. Publish Results 7. Retrieve Results",
+    "expected_source": "workflow.md"
+  },
+  {
+    "question": "Who reviews and runs the submitted job in the PySyft workflow?",
+    "expected_answer_contains": "The Data Owner syncs to receive the job, reviews the code, and approves (or rejects) and runs it on private data",
+    "expected_source": "workflow.md"
+  },
+  {
+    "question": "What data does the Data Scientist explore before submitting a job in the PySyft workflow?",
+    "expected_answer_contains": "The Data Scientist downloads the mock data to explore the structure and test their analysis code locally",
+    "expected_source": "workflow.md"
+  },
+  {
+    "question": "What's the weather like in Buenos Aires?",
+    "expected_answer_contains": "Should decline — not covered in the context",
+    "expected_source": null
+  },
+  {
+    "question": "Who won the 2026 World Cup?",
+    "expected_answer_contains": "Should decline — not covered in the context",
+    "expected_source": null
+  },
+  {
+    "question": "How do I bake a chocolate cake?",
+    "expected_answer_contains": "Should decline — not covered in the context",
+    "expected_source": null
+  },
+  {
+    "question": "What programming languages does PySyft support besides Python?",
+    "expected_answer_contains": "Should decline — not covered in the context",
+    "expected_source": null
+  },
+  {
+    "question": "What is the pricing model for using an OpenMined enclave?",
+    "expected_answer_contains": "Should decline — not covered in the context",
+    "expected_source": null
+  }
+]
