@@ -210,12 +210,16 @@ if __name__ == "__main__":
 
     load_dotenv()
 
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY is not set — add it to your .env file before running evals.")
+
     client = chromadb.PersistentClient(path="chroma_data")
     collection = client.get_collection("pysyft_docs")
 
     # Haiku for both generation and judging keeps a full eval run cheap.
-    generation_client = AnthropicClient(api_key=os.environ["ANTHROPIC_API_KEY"], model="claude-haiku-4-5-20251001")
-    judge = AnthropicClient(api_key=os.environ["ANTHROPIC_API_KEY"], model="claude-haiku-4-5-20251001")
+    generation_client = AnthropicClient(api_key=api_key, model="claude-haiku-4-5-20251001")
+    judge = AnthropicClient(api_key=api_key, model="claude-haiku-4-5-20251001")
     service = RAGService(collection, generation_client)
 
     report = run_evals(service, judge)

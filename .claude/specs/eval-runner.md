@@ -13,9 +13,12 @@ Requirements:
 - Two question types, scored differently:
 
   DOMAIN questions (expected_source is not null):
+    - expected_source may be a single source-file string (e.g. "a.md") or
+      a list of source-file strings (e.g. ["a.md", "b.md"]) when more than
+      one file legitimately answers the question
     - retrieval_correct: programmatic check (NOT LLM) — True if
-      expected_source appears among the "source" values in the returned
-      sources, False otherwise
+      expected_source (or, when it's a list, ANY entry in it) appears
+      among the "source" values in the returned sources, False otherwise
     - content_score (0-100): LLM-as-judge rates how well generated_answer
       covers expected_answer_contains (in its own words is fine, doesn't
       need to match verbatim)
@@ -39,7 +42,7 @@ Output JSON schema:
     {
       "question": "...",
       "question_type": "domain" | "decline",
-      "expected_source": "file.md" | null,
+      "expected_source": "file.md" | ["file.md", ...] | null,
       "actual_sources": ["file.md", ...],
       "retrieval_correct": true | false | null,
       "generated_answer": "...",
