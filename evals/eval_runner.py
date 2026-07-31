@@ -175,7 +175,10 @@ def run_evals(
         actual_sources = [source["source"] for source in response["sources"]]
 
         if question_type == "domain":
-            retrieval_correct = expected_source in actual_sources
+            if isinstance(expected_source, list):
+                retrieval_correct = any(s in actual_sources for s in expected_source)
+            else:
+                retrieval_correct = expected_source in actual_sources
             score, reasoning = _score_domain_question(
                 judge_client, question, expected_answer_contains, generated_answer
             )

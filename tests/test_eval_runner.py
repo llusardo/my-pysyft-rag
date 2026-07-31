@@ -87,6 +87,29 @@ def test_domain_question_retrieval_incorrect_when_source_missing(tmp_path):
     assert report["results"][0]["retrieval_correct"] is False
 
 
+def test_domain_question_retrieval_correct_when_one_of_list_sources_matches(tmp_path):
+    questions_path = tmp_path / "questions.json"
+    results_path = tmp_path / "results.json"
+    _write_questions(questions_path, [
+        {
+            "question": "What transport layer does syft-client use?",
+            "expected_answer_contains": "Google Drive",
+            "expected_source": ["connections.md", "syft-enclave-security.md", "principles.md"],
+        },
+    ])
+    rag_service = FakeRAGService({
+        "What transport layer does syft-client use?": {
+            "answer": "Google Drive.",
+            "sources": [{"text": "t", "source": "syft-enclave-security.md", "chunk_index": 0}],
+        },
+    })
+    judge = FakeJudgeClient()
+
+    report = run_evals(rag_service, judge, str(questions_path), str(results_path))
+
+    assert report["results"][0]["retrieval_correct"] is True
+
+
 def test_decline_question_uses_decline_scoring_path(tmp_path):
     questions_path = tmp_path / "questions.json"
     results_path = tmp_path / "results.json"
