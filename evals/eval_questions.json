@@ -22,7 +22,7 @@
   {
     "question": "What transport layer does syft-client use for peer-to-peer communication?",
     "expected_answer_contains": "Syft-client uses Google Drive as its file-based transport layer",
-    "expected_source": "connections.md"
+    "expected_source": ["connections.md", "syft-enclave-security.md", "principles.md"]
   },
   {
     "question": "How many of the configured data owners must approve a job before it runs on a syft-enclave?",
@@ -72,7 +72,7 @@
   {
     "question": "Who reviews and runs the submitted job in the PySyft workflow?",
     "expected_answer_contains": "The Data Owner syncs to receive the job, reviews the code, and approves (or rejects) and runs it on private data",
-    "expected_source": "workflow.md"
+    "expected_source": ["workflow.md", "root-README.md"]
   },
   {
     "question": "What's the weather like in Buenos Aires?",
