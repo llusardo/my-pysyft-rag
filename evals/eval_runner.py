@@ -179,12 +179,19 @@ def run_evals(
                 retrieval_correct = any(s in actual_sources for s in expected_source)
             else:
                 retrieval_correct = expected_source in actual_sources
-            score, reasoning = _score_domain_question(
-                judge_client, question, expected_answer_contains, generated_answer
-            )
         else:
             retrieval_correct = None
-            score, reasoning = _score_decline_question(judge_client, question, generated_answer)
+
+        try:
+            if question_type == "domain":
+                score, reasoning = _score_domain_question(
+                    judge_client, question, expected_answer_contains, generated_answer
+                )
+            else:
+                score, reasoning = _score_decline_question(judge_client, question, generated_answer)
+        except Exception as exc:
+            logger.warning("judge_client.generate() failed for %r: %s", question, exc)
+            score, reasoning = 0, f"judge_client.generate() raised an error: {exc}"
 
         results.append({
             "question": question,
@@ -212,7 +219,7 @@ if __name__ == "__main__":
 
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY is not set — add it to your .env file before running evals.")
+        raise RuntimeError("ANTHROPIC_API_KEY not set — check your .env file")
 
     client = chromadb.PersistentClient(path="chroma_data")
     collection = client.get_collection("pysyft_docs")

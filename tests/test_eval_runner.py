@@ -205,6 +205,37 @@ def test_rag_service_exception_handled_without_crashing(tmp_path):
     assert fine_result["score"] == 80
 
 
+def test_judge_client_exception_handled_without_crashing(tmp_path):
+    questions_path = tmp_path / "questions.json"
+    results_path = tmp_path / "results.json"
+    _write_questions(questions_path, [
+        {"question": "Broken Judge Q", "expected_answer_contains": "fact", "expected_source": "a.md"},
+        {"question": "Fine Q", "expected_answer_contains": "fact2", "expected_source": "b.md"},
+    ])
+    rag_service = FakeRAGService({
+        "Broken Judge Q": {"answer": "some answer", "sources": [{"text": "t", "source": "a.md", "chunk_index": 0}]},
+        "Fine Q": {"answer": "fact2 answer", "sources": [{"text": "t", "source": "b.md", "chunk_index": 0}]},
+    })
+
+    def scripted_judge(prompt):
+        if "Broken Judge Q" in prompt:
+            raise RuntimeError("judge API down")
+        return '{"score": 80, "reasoning": "covers it"}'
+
+    judge = FakeJudgeClient(canned_response=scripted_judge)
+
+    report = run_evals(rag_service, judge, str(questions_path), str(results_path))
+
+    broken_result, fine_result = report["results"]
+    assert broken_result["score"] == 0
+    assert "error" in broken_result["judge_reasoning"].lower()
+    # retrieval_correct still reflects the real retrieval -- only judging failed.
+    assert broken_result["retrieval_correct"] is True
+    # The rest of the run continues undisturbed.
+    assert fine_result["retrieval_correct"] is True
+    assert fine_result["score"] == 80
+
+
 def test_output_written_to_results_path_with_correct_schema(tmp_path):
     questions_path = tmp_path / "questions.json"
     results_path = tmp_path / "results.json"
