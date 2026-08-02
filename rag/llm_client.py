@@ -10,6 +10,7 @@ touching rag_service.py.
 import logging
 
 import anthropic
+import groq
 
 logger = logging.getLogger(__name__)
 
@@ -57,3 +58,32 @@ class AnthropicClient(LLMClient):
             messages=[{"role": "user", "content": prompt}],
         )
         return response.content[0].text
+
+
+class GroqClient(LLMClient):
+    """LLMClient implementation backed by the Groq API (free tier, no card)."""
+
+    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile") -> None:
+        """Initialize the Groq client.
+
+        Args:
+            api_key: Groq API key (load from .env, never hardcode).
+            model: Groq model id to use for generation.
+        """
+        self._client = groq.Groq(api_key=api_key)
+        self._model = model
+
+    def generate(self, prompt: str) -> str:
+        """Send prompt to Groq and return the text of the response.
+
+        Args:
+            prompt: Full prompt text to send to the model.
+
+        Returns:
+            The text content of the model's reply.
+        """
+        response = self._client.chat.completions.create(
+            model=self._model,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.choices[0].message.content
