@@ -41,9 +41,10 @@ Edge Cases:
 
 Constraints:
 
-- Groq free tier: 30 requests/minute, 6,000 tokens/minute, 14,400
-  requests/day (org-level, not per-key) — fine for a low-traffic public
-  demo, no special rate-limit handling needed in code for this pass
+- Groq free tier (llama-3.3-70b-versatile): 30 requests/minute, 1,000
+  requests/day, 12,000 tokens/minute, 100,000 tokens/day (org-level, not
+  per-key) — fine for a low-traffic public demo, no special rate-limit
+  handling needed in code for this pass
 - Follow the exact same class shape as AnthropicClient (constructor
   signature, generate() signature) so it's a true drop-in replacement
 - Tests must NOT call the real Groq API — mock/patch the groq.Groq

@@ -7,3 +7,4 @@ chroma_data/
 *.egg-info/
 .DS_Store
 evals/results_*.json
+evals/results.json
