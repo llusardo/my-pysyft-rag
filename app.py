@@ -6,15 +6,19 @@ generation — the zero-cost production path. Run locally with:
     streamlit run app.py
 """
 
+import logging
 import os
 
 import chromadb
 import streamlit as st
 from dotenv import load_dotenv
+from langfuse import get_client, observe
 
 from rag.ingest import ingest_documents
 from rag.llm_client import GroqClient
 from rag.rag_service import RAGService
+
+logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="PySyft Docs Assistant")
 
@@ -49,6 +53,23 @@ def get_rag_service() -> RAGService:
     return RAGService(collection, groq_client)
 
 
+@observe(name="rag_query")
+def ask_rag(service: RAGService, question: str) -> dict:
+    """Answer a question via RAGService, traced as a Langfuse observation.
+
+    Kept outside RAGService so the service itself stays free of any
+    observability-specific dependency (see Architecture Rules in CLAUDE.md).
+
+    Args:
+        service: The RAGService to query.
+        question: The user's question.
+
+    Returns:
+        Same dict shape as RAGService.query(): "answer" and "sources".
+    """
+    return service.query(question)
+
+
 st.title("PySyft Docs Assistant")
 st.caption("Ask a question about PySyft / OpenMined docs.")
 
@@ -68,10 +89,15 @@ if submitted:
     else:
         with st.spinner("Thinking..."):
             try:
-                result = rag_service.query(question)
+                result = ask_rag(rag_service, question)
             except Exception as exc:
                 st.error(f"Something went wrong answering that question: {exc}")
             else:
+                try:
+                    get_client().flush()
+                except Exception:
+                    logger.warning("Langfuse flush failed", exc_info=True)
+
                 st.subheader("Answer")
                 st.write(result["answer"])
 

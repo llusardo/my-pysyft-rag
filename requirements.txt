@@ -1,5 +1,6 @@
 anthropic==0.120.2
 chromadb==1.5.9
 groq==1.6.0
+langfuse==4.14.2
 python-dotenv==1.2.2
 streamlit==1.60.0
