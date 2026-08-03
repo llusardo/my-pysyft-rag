@@ -5,10 +5,13 @@ zero network calls, zero API cost, fully deterministic.
 """
 
 import json
+from unittest.mock import MagicMock
 
 import pytest
 
-from evals.eval_runner import _parse_judge_response, run_evals
+import rag.llm_client as llm_client
+from evals.eval_runner import _build_generation_client, _parse_judge_response, run_evals
+from rag.llm_client import AnthropicClient, GroqClient
 
 
 class FakeRAGService:
@@ -278,3 +281,43 @@ def test_empty_questions_file_returns_empty_results_no_crash(tmp_path):
     assert report["summary"]["average_content_score"] == 0.0
     assert report["summary"]["retrieval_accuracy"] == 0.0
     assert report["summary"]["average_decline_score"] == 0.0
+
+
+def test_build_generation_client_returns_anthropic_client(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-anthropic-key")
+    monkeypatch.setattr(llm_client.anthropic, "Anthropic", MagicMock())
+
+    client = _build_generation_client("anthropic")
+
+    assert isinstance(client, AnthropicClient)
+
+
+def test_build_generation_client_returns_groq_client(monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "test-groq-key")
+    monkeypatch.setattr(llm_client.groq, "Groq", MagicMock())
+
+    client = _build_generation_client("groq")
+
+    assert isinstance(client, GroqClient)
+
+
+def test_build_generation_client_raises_value_error_for_invalid_provider(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-anthropic-key")
+    monkeypatch.setenv("GROQ_API_KEY", "test-groq-key")
+
+    with pytest.raises(ValueError, match="gemini"):
+        _build_generation_client("gemini")
+
+
+def test_build_generation_client_raises_when_anthropic_key_missing(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
+        _build_generation_client("anthropic")
+
+
+def test_build_generation_client_raises_when_groq_key_missing(monkeypatch):
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="GROQ_API_KEY"):
+        _build_generation_client("groq")

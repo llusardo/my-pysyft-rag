@@ -20,6 +20,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from rag.llm_client import AnthropicClient, GroqClient, LLMClient
+
 logger = logging.getLogger(__name__)
 
 _DOMAIN_JUDGE_PROMPT = """\
@@ -123,6 +125,35 @@ def _compute_summary(results: list[dict]) -> dict:
     }
 
 
+def _build_generation_client(provider: str) -> LLMClient:
+    """Build the generation LLM client for the given provider name.
+
+    Args:
+        provider: "anthropic" or "groq" (the value of EVAL_PROVIDER).
+
+    Returns:
+        An LLMClient instance for the selected provider.
+
+    Raises:
+        ValueError: If provider is not "anthropic" or "groq".
+        RuntimeError: If the provider's required API key is missing from
+            the environment.
+    """
+    if provider == "anthropic":
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise RuntimeError("ANTHROPIC_API_KEY not set — check your .env file")
+        return AnthropicClient(api_key=api_key, model="claude-haiku-4-5-20251001")
+
+    if provider == "groq":
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            raise RuntimeError("GROQ_API_KEY not set — check your .env file")
+        return GroqClient(api_key=api_key)
+
+    raise ValueError(f'Invalid EVAL_PROVIDER {provider!r} — valid options: "anthropic", "groq"')
+
+
 def run_evals(
     rag_service,
     judge_client,
@@ -212,22 +243,25 @@ def run_evals(
 if __name__ == "__main__":
     import chromadb
 
-    from rag.llm_client import AnthropicClient
     from rag.rag_service import RAGService
 
     load_dotenv()
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
+    provider = os.environ.get("EVAL_PROVIDER", "anthropic")
+    print(f"Using generation provider: {provider}")
+    generation_client = _build_generation_client(provider)
+
+    # The judge is always Anthropic/Haiku, regardless of EVAL_PROVIDER, so
+    # scores stay comparable across generation providers.
+    judge_api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not judge_api_key:
         raise RuntimeError("ANTHROPIC_API_KEY not set — check your .env file")
+    judge = AnthropicClient(api_key=judge_api_key, model="claude-haiku-4-5-20251001")
 
     client = chromadb.PersistentClient(path="chroma_data")
     collection = client.get_collection("pysyft_docs")
-
-    # Haiku for both generation and judging keeps a full eval run cheap.
-    generation_client = AnthropicClient(api_key=api_key, model="claude-haiku-4-5-20251001")
-    judge = AnthropicClient(api_key=api_key, model="claude-haiku-4-5-20251001")
     service = RAGService(collection, generation_client)
 
-    report = run_evals(service, judge)
+    results_path = f"evals/results_{provider}.json"
+    report = run_evals(service, judge, results_path=results_path)
     print(json.dumps(report["summary"], indent=2))
