@@ -12,7 +12,7 @@ import os
 import chromadb
 import streamlit as st
 from dotenv import load_dotenv
-from langfuse import get_client, observe
+from langfuse import observe
 
 from rag.ingest import ingest_documents
 from rag.llm_client import GroqClient
@@ -90,14 +90,10 @@ if submitted:
         with st.spinner("Thinking..."):
             try:
                 result = ask_rag(rag_service, question)
-            except Exception as exc:
-                st.error(f"Something went wrong answering that question: {exc}")
+            except Exception:
+                logger.exception("Failed to answer question")
+                st.error("Something went wrong answering that question — please try again.")
             else:
-                try:
-                    get_client().flush()
-                except Exception:
-                    logger.warning("Langfuse flush failed", exc_info=True)
-
                 st.subheader("Answer")
                 st.write(result["answer"])
 
